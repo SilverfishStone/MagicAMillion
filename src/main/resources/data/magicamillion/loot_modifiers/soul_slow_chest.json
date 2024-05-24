@@ -1,0 +1,10 @@
+{
+  "type": "magicamillion:soul_slow_chest",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "chests/bastion_hoglin_stable"
+    }
+  ],
+  "lootTable": "magicamillion:chests/soul_slowness_book_chest"
+}

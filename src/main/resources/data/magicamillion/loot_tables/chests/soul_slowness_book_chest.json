@@ -1,0 +1,33 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_book",
+          "functions": [
+            {
+              "function": "minecraft:enchant_with_levels",
+              "levels": {
+                "min": 30,
+                "max": 50
+              }
+            },
+            {
+              "function": "minecraft:enchant_randomly",
+              "enchantments": [
+                "magicamillion:soul_slowness"
+              ]
+            }
+          ],
+          "weight": 5
+        },
+        {
+          "type": "minecraft:empty"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "magicamillion:chests/soul_slowness_book_chest"
+}

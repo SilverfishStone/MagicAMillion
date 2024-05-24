@@ -1,0 +1,10 @@
+{
+  "type": "magicamillion:sculk_speed_chest",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "chests/ancient_city"
+    }
+  ],
+  "lootTable": "magicamillion:chests/sculk_speed_book_chest"
+}

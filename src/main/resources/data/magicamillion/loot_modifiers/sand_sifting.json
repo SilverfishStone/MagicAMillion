@@ -1,0 +1,10 @@
+{
+  "type": "magicamillion:sand_sifting",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "blocks/sand"
+    }
+  ],
+  "lootTable": "magicamillion:blocks/sand_sifting"
+}

@@ -1,0 +1,10 @@
+{
+  "type": "magicamillion:shulkify_end_chest",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "chests/end_city_treasure"
+    }
+  ],
+  "lootTable": "magicamillion:chests/shulkify_book_chest"
+}
