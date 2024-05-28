@@ -100,7 +100,6 @@ tasks.named('jar', Jar).configure {
 
     finalizedBy 'reobfJar'
 }
-n
 publishing {
     publications {
         register('mavenJava', MavenPublication) {

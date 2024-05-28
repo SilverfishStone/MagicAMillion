@@ -1,10 +1,10 @@
 package net.silverfishstone.magicamillion.enchantments.custom;
 
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.silverfishstone.magicamillion.util.ModdedTags;
 
 public class ElytraEnchantment extends Enchantment {
     public ElytraEnchantment(Rarity pRarity, EnchantmentCategory pCategory, EquipmentSlot... pApplicableSlots) {
@@ -13,12 +13,14 @@ public class ElytraEnchantment extends Enchantment {
 
     @Override
     public boolean canEnchant(ItemStack pStack) {
-        return pStack.is(Items.ELYTRA);
+        Item elytra = pStack.getItem();
+        return pStack.is(ModdedTags.Items.ELYTRA) || elytra instanceof ElytraItem;
     }
 
     @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack) {
-        return stack.is(Items.ELYTRA);
+        Item elytra = stack.getItem();
+        return stack.is(ModdedTags.Items.ELYTRA) || elytra instanceof ElytraItem;
     }
 
     public int getMinCost(int pEnchantmentLevel) {

@@ -1,64 +1,66 @@
 package net.silverfishstone.magicamillion.event;
 
+import com.electronwill.nightconfig.core.Config;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.advancements.critereon.ItemDurabilityTrigger;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Position;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BrushItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.silverfishstone.magicamillion.MagicAMillion;
+import net.silverfishstone.magicamillion.config.MagicNumbersConfig;
 import net.silverfishstone.magicamillion.enchantments.ModifiedEnchantments;
 import net.silverfishstone.magicamillion.mobeffect.ModdedMobEffects;
 import net.silverfishstone.magicamillion.util.ModdedTags;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.lang.module.Configuration;
+import java.util.*;
+import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber(modid = MagicAMillion.MODID)
 public class ModdedEvents {
@@ -68,7 +70,65 @@ public class ModdedEvents {
     static EquipmentSlot feet = EquipmentSlot.FEET;
 
     @SubscribeEvent
-    public static void sinkylinky(TickEvent.PlayerTickEvent event) {
+    public static void insuranceGrantUse(PlayerDestroyItemEvent event) {
+        ItemStack destroyed = event.getOriginal();
+        Item given = (ForgeRegistries.ITEMS.tags().getTag(ItemTags.create(new ResourceLocation("forge:insurance/"+ destroyed.getItem().getDescriptionId() +"_insurance"))).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR));
+        Player user = event.getEntity();
+        int level = destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get());
+        int insuranceAmount;
+        int insuranceAmountLess;
+        if (level != 0) {
+            if (ForgeRegistries.ITEMS.tags().isKnownTagName(ItemTags.create(new ResourceLocation("forge:insurance/"+ destroyed.getItem().getDescriptionId() +"_insurance")))) {
+                ItemStack result = new ItemStack(given);
+                if (destroyed.getItem() instanceof PickaxeItem || destroyed.getItem() instanceof AxeItem || (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_three_insurance"))))) {
+                    insuranceAmount = MagicNumbersConfig.pickaxeaxe.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else if (destroyed.getItem() instanceof SwordItem || destroyed.getItem() instanceof HoeItem || (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_two_insurance"))))) {
+                    insuranceAmount = MagicNumbersConfig.swoe.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else if (destroyed.getItem() instanceof ShovelItem || destroyed.getItem() instanceof ShieldItem || destroyed.getItem() instanceof BrushItem || (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_one_insurance"))))) {
+                    insuranceAmount = MagicNumbersConfig.shover.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else if (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_five_insurance")))) {
+                    insuranceAmount = MagicNumbersConfig.tierV.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else if (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_six_insurance")))) {
+                    insuranceAmount = MagicNumbersConfig.tierVI.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else if (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_seven_insurance")))) {
+                    insuranceAmount = MagicNumbersConfig.tierVII.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else if (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_eight_insurance")))) {
+                    insuranceAmount = MagicNumbersConfig.tierVIII.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else if (destroyed.is(ItemTags.create(new ResourceLocation("forge:insurance/tier_nine_insurance")))) {
+                    insuranceAmount = MagicNumbersConfig.tierIX.get();
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(Math.min(insuranceAmount, insuranceAmountLess));
+                } else {
+                    insuranceAmount = 2;
+                    insuranceAmountLess = (destroyed.getEnchantmentLevel(ModifiedEnchantments.INSURANCE.get())/3) * insuranceAmount;
+                    result.setCount(insuranceAmountLess);
+                }
+                ItemHandlerHelper.giveItemToPlayer(user, result);
+            } else {
+                Item options = (ForgeRegistries.ITEMS.tags().getTag(ItemTags.create(new ResourceLocation("forge:insurance/unknown_tool_insurance"))).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR));
+                ItemStack result = new ItemStack(options);
+                result.setCount(MagicNumbersConfig.unknown_tool.get());
+                ItemHandlerHelper.giveItemToPlayer(user, result);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void playerTicks(TickEvent.PlayerTickEvent event) {
         ItemStack sloth = event.player.getItemBySlot(head);
         ItemStack slotb = event.player.getItemBySlot(chest);
         ItemStack slotl = event.player.getItemBySlot(legs);
@@ -81,17 +141,25 @@ public class ModdedEvents {
         witherdote(event.player, sloth, slotb, slotl, slots);
     }
 
+    @SubscribeEvent
+    public static void playerUses(LivingEntityUseItemEvent event) {
+        farmersCurse(event.getEntity());
+        eagleEye(event.getEntity().level(), event.getEntity(), event.getEntity().getUseItem());
+    }
+
     public static void sinklinkink(LivingEntity player) {
         if ((player.getItemBySlot(head).getEnchantmentLevel(ModifiedEnchantments.DEVIL_FRUIT.get()) >= 1) && player.isEyeInFluidType(Fluids.WATER.getFluidType())) {
             player.addEffect(new MobEffectInstance(ModdedMobEffects.SUNKEN.get(), 100));
         }
     }
+
     public static void lightflight(LivingEntity player) {
         if (player.isFallFlying() && player.getItemBySlot(chest).getEnchantmentLevel(ModifiedEnchantments.LIGHT_FLIGHT.get()) == 1) {
             player.resetFallDistance();
         }
 
     }
+
     public static void hellflight(LivingEntity player) {
         if (player.isFallFlying() && player.getItemBySlot(chest).getEnchantmentLevel(ModifiedEnchantments.FLAMEPROOF.get()) == 1) {
             player.extinguishFire();
@@ -101,9 +169,7 @@ public class ModdedEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void farmersCurse(LivingEntityUseItemEvent event) {
-        LivingEntity player = event.getEntity();
+    public static void farmersCurse(LivingEntity player) {
         ItemStack slot1 = player.getItemBySlot(head);
         ItemStack slot2 = player.getItemBySlot(chest);
         ItemStack slot3 = player.getItemBySlot(legs);
@@ -116,6 +182,7 @@ public class ModdedEvents {
             }
         }
     }
+
     public static void antidote(LivingEntity player, ItemStack slot1, ItemStack slot2, ItemStack slot3, ItemStack slot4) {
         //Credit to https://github.com/ochotonida/artifacts/blob/1.20.x/common/src/main/java/artifacts/item/wearable/belt/AntidoteVesselItem.java
         //The enchantment was not originally inspired by this artifact, but I did use the code to help me build this enchantment.
@@ -158,10 +225,11 @@ public class ModdedEvents {
     }
 
     @SubscribeEvent
-    public static void poisonBlock(LivingHurtEvent event) {
-        LivingEntity victim = event.getEntity();
-        LivingEntity attacker = (LivingEntity) event.getSource().getEntity();
-        float amount = event.getAmount();
+    public static void hurtEvents(LivingHurtEvent event) {
+        poisonBlock(event.getEntity(), (LivingEntity) event.getSource().getEntity(), event.getAmount());
+    }
+
+    public static void poisonBlock(LivingEntity victim, LivingEntity attacker, float amount) {
         ItemStack hand = victim.getUseItem();
         if ((hand.getEnchantmentLevel(ModifiedEnchantments.POISON_SHIELD.get()) >= 1) && victim.isBlocking() && amount == 0) {
             attacker.addEffect(new MobEffectInstance(MobEffects.POISON, 100 * hand.getEnchantmentLevel(ModifiedEnchantments.POISON_SHIELD.get())));
@@ -210,19 +278,19 @@ public class ModdedEvents {
         int neg = -42;
         int min = 1;
         int max = -((entity.getMainHandItem().getEnchantmentLevel(ModifiedEnchantments.SIFTING.get()) * 10) + neg);
-        int i = (int)Math.floor(Math.random() * (max - min + 1) + min);
+        int i = (int) Math.floor(Math.random() * (max - min + 1) + min);
         //Loot dropped by the "Sifting" enchantment can be configured by adding to or changing the tags that this code reads.
         if (state.is(ModdedTags.Blocks.DESERT_TREASURE_POSSIBLE) && world.getBiome(pos).is(Tags.Biomes.IS_DESERT) || world.getBiome(pos).is(BiomeTags.HAS_DESERT_PYRAMID)) {
             if ((i == 1) && entity.getMainHandItem().getEnchantmentLevel(ModifiedEnchantments.SIFTING.get()) >= 1 && !entity.isCreative() && world.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
-             world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-             ItemEntity treasure = new ItemEntity(world, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, new ItemStack((Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(ModdedTags.Items.DESERT_TREASURE).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR))));
-             ItemEntity treasure2 = new ItemEntity(world, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, new ItemStack((Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(ModdedTags.Items.DESERT_TREASURE).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR))));
-             ItemEntity treasure3 = new ItemEntity(world, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, new ItemStack((Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(ModdedTags.Items.DESERT_TREASURE).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR))));
-             treasure.setPickUpDelay(10);
-             world.addFreshEntity(treasure);
+                world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+                ItemEntity treasure = new ItemEntity(world, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, new ItemStack((Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(ModdedTags.Items.DESERT_TREASURE).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR))));
+                ItemEntity treasure2 = new ItemEntity(world, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, new ItemStack((Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(ModdedTags.Items.DESERT_TREASURE).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR))));
+                ItemEntity treasure3 = new ItemEntity(world, pos.getCenter().x, pos.getCenter().y, pos.getCenter().z, new ItemStack((Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(ModdedTags.Items.DESERT_TREASURE).getRandomElement(RandomSource.create()).orElseGet(() -> Items.AIR))));
+                treasure.setPickUpDelay(10);
+                world.addFreshEntity(treasure);
                 int minF = 1;
                 int maxF = (entity.getMainHandItem().getEnchantmentLevel(Enchantments.BLOCK_FORTUNE));
-                int F = (int)Math.floor(Math.random() * (maxF - minF + 1) + minF);
+                int F = (int) Math.floor(Math.random() * (maxF - minF + 1) + minF);
                 if (F == 1) {
                     world.addFreshEntity(treasure2);
                 }
@@ -241,7 +309,7 @@ public class ModdedEvents {
                 world.addFreshEntity(treasure);
                 int minF = 0;
                 int maxF = (entity.getMainHandItem().getEnchantmentLevel(Enchantments.BLOCK_FORTUNE));
-                int F = (int)Math.floor(Math.random() * (maxF - minF + 1) + minF);
+                int F = (int) Math.floor(Math.random() * (maxF - minF + 1) + minF);
                 if (F == 1) {
                     world.addFreshEntity(treasure2);
                 }
@@ -260,7 +328,7 @@ public class ModdedEvents {
                 world.addFreshEntity(treasure);
                 int minF = 1;
                 int maxF = (entity.getMainHandItem().getEnchantmentLevel(Enchantments.BLOCK_FORTUNE));
-                int F = (int)Math.floor(Math.random() * (maxF - minF + 1) + minF);
+                int F = (int) Math.floor(Math.random() * (maxF - minF + 1) + minF);
                 if (F == 1) {
                     world.addFreshEntity(treasure2);
                 }
@@ -271,6 +339,7 @@ public class ModdedEvents {
             }
         }
     }
+
     public static void webWalk(LivingEntity player) {
         BlockPos onCenter = player.blockPosition();
         BlockPos on = BlockPos.containing(player.blockPosition().getCenter());
@@ -323,6 +392,17 @@ public class ModdedEvents {
                     player.addEffect(new MobEffectInstance(effect, maxEffectDuration, instance.getAmplifier(), instance.isAmbient(), instance.isVisible(), instance.showIcon()));
                 }
             });
+        }
+    }
+
+    public static void eagleEye(Level world, LivingEntity player, ItemStack hand) {
+        if ((hand.getEnchantmentLevel(ModifiedEnchantments.OSPREY.get()) != 0) && hand.is(Items.SPYGLASS) && player.isUsingItem()) {
+            List<? extends LivingEntity> list = world.getEntitiesOfClass(LivingEntity.class, AABB.ofSize(Vec3.atCenterOf(player.getOnPos()), 200.0D, 200.0D, 200.0D));
+            for(LivingEntity target : list) {
+                if (!(target instanceof Player)) {
+                    target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 2, 0, true, false));
+                }
+            }
         }
     }
 }

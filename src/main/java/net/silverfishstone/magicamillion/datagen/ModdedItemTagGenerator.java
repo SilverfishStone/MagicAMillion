@@ -65,5 +65,30 @@ public class ModdedItemTagGenerator extends ItemTagsProvider {
         this.tag(ModdedTags.Items.RANDOM_TREASURE)
                 .add(Items.GOLD_NUGGET)
                 .add(Items.IRON_NUGGET);
+
+        this.tag(ModdedTags.Items.ELYTRA)
+                .add(Items.ELYTRA);
+
+        this.tag(ModdedTags.Items.DIAMOND_STUFFS)
+                .add(Items.DIAMOND_AXE)
+                .add(Items.DIAMOND_PICKAXE)
+                .add(Items.DIAMOND_SHOVEL)
+                .add(Items.DIAMOND_HOE)
+                .add(Items.DIAMOND_SWORD)
+                .add(Items.DIAMOND_BOOTS)
+                .add(Items.DIAMOND_LEGGINGS)
+                .add(Items.DIAMOND_CHESTPLATE)
+                .add(Items.DIAMOND_HELMET);
+
+        this.tag(ModdedTags.Items.NETHERITE_STUFFS)
+                .add(Items.NETHERITE_AXE)
+                .add(Items.NETHERITE_PICKAXE)
+                .add(Items.NETHERITE_SHOVEL)
+                .add(Items.NETHERITE_HOE)
+                .add(Items.NETHERITE_SWORD)
+                .add(Items.NETHERITE_BOOTS)
+                .add(Items.NETHERITE_LEGGINGS)
+                .add(Items.NETHERITE_CHESTPLATE)
+                .add(Items.NETHERITE_HELMET);
     }
 }

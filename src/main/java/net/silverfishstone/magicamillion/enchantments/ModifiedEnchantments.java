@@ -179,7 +179,30 @@ public class ModifiedEnchantments {
                     () -> new CustomProtectionEnchantment(Enchantment.Rarity.COMMON,
                             EnchantmentCategory.ARMOR, 4));
 
+    public static RegistryObject<Enchantment> OSPREY =
+            ENCHANTMENTS.register("osprey",
+                    () -> new SpyglassEnchantment(Enchantment.Rarity.COMMON,
+                            EnchantmentCategory.BREAKABLE));
 
+    public static RegistryObject<Enchantment> INSURANCE =
+            ENCHANTMENTS.register("insurance",
+                    () -> new InsuranceEnchantment(Enchantment.Rarity.COMMON,
+                            EnchantmentCategory.BREAKABLE));
+
+    public static RegistryObject<Enchantment> LEVELED =
+            ENCHANTMENTS.register("leveled",
+                    () -> new ExponentEnchantment(Enchantment.Rarity.RARE,
+                            EnchantmentCategory.WEAPON));
+
+    public static RegistryObject<Enchantment> SOUL_FIRE_ASPECT =
+            ENCHANTMENTS.register("soul_fire_aspect",
+                    () -> new SoulFlameEnchantment(Enchantment.Rarity.RARE,
+                            EnchantmentCategory.WEAPON));
+
+    public static RegistryObject<Enchantment> SOUL_FLAME =
+            ENCHANTMENTS.register("soul_flame",
+                    () -> new SoulFlameEnchantment(Enchantment.Rarity.RARE,
+                            EnchantmentCategory.BOW));
 
 
     public static void register(IEventBus eventBus) {

@@ -1,6 +1,9 @@
-// 1.20.1	2024-05-23T22:48:41.7941855	Tags for minecraft:item mod id magicamillion
+// 1.20.1	2024-05-27T06:54:48.2190697	Tags for minecraft:item mod id magicamillion
 58ba396a11d9380ad86c6d16b590e750e7385103 data/magicamillion/tags/items/desert_treasure.json
+203ba16ceb0760603720b59738a2559765f323fa data/magicamillion/tags/items/diamond_stuffs.json
+e6a557e0f0c7023bf91eaaf1ba66fadae53fd806 data/magicamillion/tags/items/elytra.json
 17036a72fd907dde328cc0c2cfe7fc51a42e1846 data/magicamillion/tags/items/farm_foods.json
+23c0174e9b79dde3e917325e647be58a6d3a6b80 data/magicamillion/tags/items/netherite_stuffs.json
 98fef57241911ff98f3cb4cc53f619b54c998dce data/magicamillion/tags/items/ocean_treasure.json
 0c112835b7a98ba8ea7c6756b5988cb8d9fc7d89 data/magicamillion/tags/items/random_treasure.json
 37cc909123d15946820aa9b0bc3e4dd6a5382972 data/magicamillion/tags/items/starch.json

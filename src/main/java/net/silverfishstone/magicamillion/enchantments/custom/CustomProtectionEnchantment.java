@@ -1,17 +1,19 @@
 package net.silverfishstone.magicamillion.enchantments.custom;
 
+import net.minecraft.core.Holder;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.item.enchantment.*;
 import net.silverfishstone.magicamillion.enchantments.ModifiedEnchantments;
+
+import java.util.Objects;
 
 public class CustomProtectionEnchantment extends Enchantment {
     public final int type;

@@ -7,10 +7,13 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.silverfishstone.magicamillion.config.MagicNumbersConfig;
 import net.silverfishstone.magicamillion.enchantments.ModifiedEnchantments;
 import net.silverfishstone.magicamillion.mobeffect.ModdedMobEffects;
 import org.slf4j.Logger;
@@ -31,6 +34,8 @@ public class MagicAMillion
 
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, MagicNumbersConfig.SPEC, "magicamillion-common.toml");
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

@@ -28,10 +28,13 @@ public class ModdedTags {
     public static class Items {
 
         public static final TagKey<Item> STARCH = tag("starch");
+        public static final TagKey<Item> ELYTRA = tag("elytra");
         public static final TagKey<Item> FARM_FOODS = tag("farm_foods");
         public static final TagKey<Item> DESERT_TREASURE = tag("desert_treasure");
         public static final TagKey<Item> OCEAN_TREASURE = tag("ocean_treasure");
         public static final TagKey<Item> RANDOM_TREASURE = tag("random_treasure");
+        public static final TagKey<Item> DIAMOND_STUFFS = tag("diamond_stuffs");
+        public static final TagKey<Item> NETHERITE_STUFFS = tag("netherite_stuffs");
 
         private static TagKey<Item> tag(String name) {
             return ItemTags.create(new ResourceLocation(MagicAMillion.MODID, name));
